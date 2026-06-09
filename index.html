@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Hospitalg</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+  margin: 0;
+}
+
+header {
+  background-color: #800040;
+  padding: 90px 40px;
+  color: White;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+nav {
+  float: left;
+  width: 30%;
+  height: 400px;
+  background: #99004d;
+  padding: 20px;
+}
+
+nav ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+nav ul li {
+  margin-bottom: 15px;
+}
+
+article {
+  float: left;
+  padding: 20px;
+  width: 70%;
+  background-color: White;
+  height: 400px;
+}
+
+section::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+footer {
+  background-color: #990033;
+  padding: 10px;
+  text-align: center;
+  color: White;
+}
+
+@media (max-width: 600px) {
+  nav, article {
+    width: 100%;
+    height: auto;
+  }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="ja.jpg" alt="Logo" style="height: 200px; width: auto; margin-right: 30px;">
+  <div>
+    <h2 style="margin: 0; font-size: 50px;">Hospital Jaguares</h2>
+    <p style="margin: 5px 0 0 0; font-size: 24px; color: #E0E0E0; font-weight: bold;">Hospital del bienestar</p>
+  </div>
+</header>
+
+<section>
+  <nav>
+    <ul>
+      <li><a href="Medicos.html" style="color: white; font-weight: bold;">Medicos</a></li>
+      <li><a href="pacientes.html" style="color: white;">Pacientes</a></li>
+      <li><a href="citas.html" style="color: white;">Citas</a></li>
+    </ul>
+  </nav>
+  
+  <article>
+    <h1>Informacion General</h1>
+    <p>En el Hospital jaguares aseguramos la salud de todo nuestros pacientes.</p>
+    <p>Abierto toda la semana :)</p>
+  </article>
+</section>
+
+<footer>
+  <p>Esquivel Cano Nataly Scarlett - 24308051280533 - 4I - Programacion</p>
+</footer>
+
+</body>
+</html>

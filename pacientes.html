@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Alta de pacientes | Hospital Jaguares</title>
+</head>
+<body>
+
+<header>
+    <h1>Alta de pacientes | Hospital Jaguares</h1>
+    <img width="250" align="center" src="ja.jpg" alt="Logo Hospital Jaguares">
+    <p>Es necesario registrarse para poder tener una cita asegurada</p>
+</header>
+
+<main>
+    <div class="form-container">
+        <form id="patientForm">
+            <input type="hidden" id="edit_row_index" value="">
+
+            <div class="form-group">
+                <label>ID del Paciente:</label>
+                <input type="number" id="id_paciente" required>
+            </div>
+
+            <div class="form-group">
+                <label>Nombre Completo:</label>
+                <input type="text" id="nombre_paciente" placeholder="Ej: Juan Perez" required>
+            </div>
+
+            <div class="form-group">
+                <label>Edad:</label>
+                <input type="number" id="edad_paciente" placeholder="Ej: 28" required>
+            </div>
+
+            <div class="form-group">
+                <label>Diagnóstico:</label>
+                <input type="text" id="diagnostico_paciente" placeholder="Ej: Gripe" required>
+            </div>
+
+            <div class="form-group">
+                <label>Medicamentos:</label>
+                <input type="text" id="medicamentos_paciente" placeholder="Ej: Paracetamol" required>
+            </div>
+
+            <button type="submit" id="btnSubmit" class="btn-submit">Registrar al paciente</button>
+        </form>
+    </div>
+
+    <table id="patientsTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Edad</th>
+                <th>Diagnóstico</th>
+                <th>Medicamentos</th>
+            </tr>
+        </thead>
+        <tbody>
+            </tbody>
+    </table> 
+
+    <div class="crud-panel">
+        <h3>Panel de Operaciones (Update & Delete)</h3>
+        <p>Introduce el "ID" del paciente de la tabla para gestionarlo:</p>
+        <div class="crud-actions">
+            <input type="number" id="crud_id_paciente" placeholder="ID Paciente (Ej: 5)">
+            <button class="btn-crud btn-edit" onclick="prepareUpdate()">Editar Paciente</button>
+            <button class="btn-crud btn-delete" onclick="executeDelete()">Borrar Paciente</button>
+        </div>
+    </div>
+
+    <a href="index.html" class="btn-back">Volver al inicio</a>
+</main>
+
+<footer>
+    <p>Esquivel Cano Nataly Scarlett | Programación</p>
+    <p>24308051280533 | 4-I</p>
+</footer>
+
+<script>
+    // Datos iniciales por defecto sin errores de propiedades
+    const defaultPatients = [
+        { id: "1", nombre: "Juan Perez", edad: "17", diagnostico: "Esguince de Tobillo", medicamentos: "Ibuprofeno" },
+        { id: "2", nombre: "Ana Garcia", edad: "18", diagnostico: "Gripe", medicamentos: "Paracetamol" },
+        { id: "3", nombre: "Lucia torres", edad: "10", diagnostico: "Conjuntivitis bacteriana", medicamentos: "cloranfenicol (gotas)" },
+        { id: "4", nombre: "Ana Silvia Ramos", edad: "34", diagnostico: "Artritis reumatoide", medicamentos: "Metotrexato" },
+        { id: "5", nombre: "Maria Rodriguez", edad: "62", diagnostico: "Hipertensión Arterial", medicamentos: "Enalapril" },
+        { id: "6", nombre: "Carlos Ruiz", edad: "45", diagnostico: "Varicela", medicamentos: "Paracetamol" },
+        { id: "7", nombre: "Elena Mendez", edad: "28", diagnostico: "Infección en la garganta", medicamentos: "Amoxicilina 500 mg" },
+        { id: "8", nombre: "Roberto Gomez", edad: "62", diagnostico: "Gastritis Aguda", medicamentos: "Omeprazol" },
+        { id: "9", nombre: "German Perez", edad: "46", diagnostico: "Gripe", medicamentos: "Paracetamol" },
+        { id: "10", nombre: "Diego López", edad: "28", diagnostico: "Gripe", medicamentos: "Paracetamol" }
+    ];
+
+    // Cargar datos desde LocalStorage o usar los predeterminados
+    let patients = JSON.parse(localStorage.getItem('patientsList'));
+    if (!patients) {
+        patients = defaultPatients;
+        localStorage.setItem('patientsList', JSON.stringify(patients));
+    }
+
+    const form = document.getElementById('patientForm');
+    const btnSubmit = document.getElementById('btnSubmit');
+    const tableBody = document.getElementById('patientsTable').getElementsByTagName('tbody')[0];
+
+    // --- READ: Función para redibujar la tabla ---
+    function renderTable() {
+        tableBody.innerHTML = ""; 
+        patients.forEach(pat => {
+            const newRow = tableBody.insertRow();
+            newRow.insertCell(0).textContent = pat.id;
+            newRow.insertCell(1).textContent = pat.nombre;
+            newRow.insertCell(2).textContent = pat.edad;
+            newRow.insertCell(3).textContent = pat.diagnostico;
+            newRow.insertCell(4).textContent = pat.medicamentos;
+        });
+    }
+
+    // --- CREATE (Crear) y UPDATE (Actualizar) ---
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const id = document.getElementById('id_paciente').value;
+        const nombre = document.getElementById('nombre_paciente').value;
+        const edad = document.getElementById('edad_paciente').value;
+        const diagnostico = document.getElementById('diagnostico_paciente').value;
+        const medicamentos = document.getElementById('medicamentos_paciente').value;
+        const editRowIndex = document.getElementById('edit_row_index').value;
+
+        const patData = {
+            id: id.toString(),
+            nombre: nombre,
+            edad: edad.toString(),
+            diagnostico: diagnostico,
+            medicamentos: medicamentos
+        };
+
+        if (editRowIndex === "") {
+            // Acción: Crear
+            patients.push(patData);
+        } else {
+            // Acción: Actualizar
+            patients[parseInt(editRowIndex)] = patData;
+
+            // Resetear el botón superior
+            document.getElementById('edit_row_index').value = "";
+            btnSubmit.textContent = "Registrar al paciente";
+            btnSubmit.style.backgroundColor = "#C2A649";
+        }
+
+        localStorage.setItem('patientsList', JSON.stringify(patients));
+        renderTable();
+        form.reset();
+    });
+
+    // Función auxiliar para buscar por ID en el arreglo
+    function findPatientIndexById(searchId) {
+        return patients.findIndex(pat => pat.id === searchId.toString());
+    }
+
+    // --- PREPARAR UPDATE (Mapear datos al formulario de arriba) ---
+    function prepareUpdate() {
+        const searchInput = document.getElementById('crud_id_paciente').value;
+        if (!searchInput) return alert("Por favor, ingresa el ID del paciente.");
+
+        const index = findPatientIndexById(searchInput);
+
+        if (index !== -1) {
+            const pat = patients[index];
+
+            document.getElementById('id_paciente').value = pat.id;
+            document.getElementById('nombre_paciente').value = pat.nombre;
+            document.getElementById('edad_paciente').value = pat.edad;
+            document.getElementById('diagnostico_paciente').value = pat.diagnostico;
+            document.getElementById('medicamentos_paciente').value = pat.medicamentos;
+            
+            document.getElementById('edit_row_index').value = index;
+
+            btnSubmit.textContent = "Actualizar paciente";
+            btnSubmit.style.backgroundColor = "#008040"; // Tono verde para diferenciar
+
+            window.scrollTo({ top: form.offsetTop - 50, behavior: 'smooth' });
+            document.getElementById('crud_id_paciente').value = ""; 
+        } else {
+            alert("No se encontró ningún paciente con el ID " + searchInput);
+        }
+    }
+
+    // --- DELETE (Borrar) ---
+    function executeDelete() {
+        const searchInput = document.getElementById('crud_id_paciente').value;
+        if (!searchInput) return alert("Por favor, ingresa el ID del paciente.");
+
+        const index = findPatientIndexById(searchInput);
+
+        if (index !== -1) {
+            if (confirm(`¿Estás seguro de que deseas eliminar al paciente con ID ${searchInput}?`)) {
+                patients.splice(index, 1);
+                
+                localStorage.setItem('patientsList', JSON.stringify(patients));
+                renderTable();
+                
+                document.getElementById('crud_id_paciente').value = "";
+                
+                const currentEditIndex = document.getElementById('edit_row_index').value;
+                if (currentEditIndex !== "" && parseInt(currentEditIndex) === index) {
+                    form.reset();
+                    document.getElementById('edit_row_index').value = "";
+                    btnSubmit.textContent = "Registrar al paciente";
+                    btnSubmit.style.backgroundColor = "#C2A649";
+                }
+            }
+        } else {
+            alert("No se encontró ningún paciente con el ID " + searchInput);
+        }
+    }
+
+    // Dibujar la tabla inicialmente al cargar
+    renderTable();
+</script>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: "Comic Sans MS", "Comic Sans", sans-serif;
+        background-color: #800040;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    header {
+        background-color: #800040;
+        width: 100%;
+        padding: 20px 0;
+        text-align: center;
+        color: #ffffff;
+        border-bottom: 4px solid #C2A649;
+    }
+
+    h1 {
+        color: #ffffff;
+        font-family: 'Comic Sans MS', 'Comic Sans', sans-serif;
+        margin: 0;
+        font-size: 2rem;
+    }
+
+    header p {
+        color: #ffffff;
+        margin-top: 10px;
+    }
+
+    main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        padding: 40px 20px;
+        flex: 1;
+    }
+
+    .form-container {
+        max-width: 600px;
+        width: 100%;
+        background: white;
+        padding: 35px;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        border-top: 6px solid #C2A649;
+        margin-bottom: 40px;
+    }
+ 
+    .form-group {
+        margin-bottom: 22px;
+    }
+   
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #000000;
+        font-size: 14px;
+    }
+
+    input[type="text"], input[type="number"] {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #800040;
+        border-radius: 6px;
+        font-family: "Comic Sans MS", sans-serif;
+        font-size: 14px;
+        background-color: #faf7fa;
+        color: #333;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: #C2A649;
+        background-color: #fff;
+        box-shadow: 0 0 5px rgba(194, 166, 73, 0.6);
+    }
+
+    .btn-submit {
+        background-color: #C2A649;
+        color: white;
+        border: none;
+        padding: 14px 15px;
+        width: 100%;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        font-family: "Comic Sans MS", sans-serif;
+        margin-top: 10px;
+        transition: background-color 0.2s;
+    }
+
+    .btn-submit:hover {
+        background-color: #a88e39;
+    }
+
+    table {
+        width: 100%;
+        max-width: 800px;
+        border-collapse: collapse;
+        font-family: 'Comic Sans MS', cursive;
+        margin-top: 15px;
+        background-color: #ffffff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    thead tr {
+        background-color: #4a0025;
+        color: white;
+    }
+
+    th, td {
+        border: 1px solid #800040;
+        padding: 12px 10px;
+        text-align: left;
+    }
+
+    tbody tr {
+        background-color: #ffffff;
+    }
+
+    tbody tr td {
+        color: #000000;
+    }
+
+    /* Panel CRUD Inferior */
+    .crud-panel {
+        max-width: 800px;
+        width: 100%;
+        background-color: #ffffff;
+        margin-top: 30px;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 6px solid #C2A649;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .crud-panel h3 {
+        margin: 0 0 5px 0;
+        color: #800040;
+    }
+
+    .crud-panel p {
+        margin: 0 0 15px 0;
+        font-size: 14px;
+        color: #555;
+    }
+
+    .crud-actions {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .crud-actions input[type="number"] {
+        width: 180px;
+    }
+
+    .btn-crud {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        font-family: "Comic Sans MS", sans-serif;
+        font-size: 14px;
+        color: white;
+        transition: background-color 0.2s;
+    }
+
+    .btn-edit {
+        background-color: #007bff;
+    }
+
+    .btn-edit:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-delete {
+        background-color: #dc3545;
+    }
+
+    .btn-delete:hover {
+        background-color: #bd2130;
+    }
+
+    .btn-back {
+        display: inline-block;
+        text-align: center;
+        margin-top: 25px;
+        color: #ffffff;
+        text-decoration: underline;
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    .btn-back:hover {
+        color: #C2A649;
+    }
+
+    footer {
+        width: 100%;
+        background-color: #ffffff;
+        padding: 15px 0;
+        text-align: center;
+        font-size: 13px;
+        color: #000000;
+        border-top: 4px solid #C2A649;
+        margin-top: 40px;
+    }
+
+    footer p {
+        margin: 4px 0;
+        font-family: 'Comic Sans MS', sans-serif;
+    }
+</style>
+</html>
